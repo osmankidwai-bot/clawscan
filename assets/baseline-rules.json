@@ -1,0 +1,67 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-02-22",
+  "categories": [
+    {
+      "name": "Config Security",
+      "maxPoints": 40,
+      "checks": [
+        {"id": "CFG-001", "name": "Config file exists", "severity": "high", "points": 5, "tier": "free"},
+        {"id": "CFG-002", "name": "No hardcoded API keys", "severity": "critical", "points": 10, "tier": "free"},
+        {"id": "CFG-003", "name": "Gateway auth configured", "severity": "critical", "points": 5, "tier": "free"},
+        {"id": "CFG-004", "name": "Gateway bind secure", "severity": "critical", "points": 5, "tier": "free"},
+        {"id": "CFG-005", "name": "HTTPS/TLS configured", "severity": "high", "points": 5, "tier": "free"},
+        {"id": "CFG-006", "name": "Model allowlist set", "severity": "medium", "points": 5, "tier": "free"},
+        {"id": "CFG-007", "name": "Exec security policy", "severity": "high", "points": 5, "tier": "free"}
+      ]
+    },
+    {
+      "name": "File Exposure",
+      "maxPoints": 25,
+      "checks": [
+        {"id": "FILE-001", "name": "No passwords in MEMORY.md", "severity": "critical", "points": 10, "tier": "free"},
+        {"id": "FILE-002", "name": "No .env secrets", "severity": "high", "points": 5, "tier": "free"},
+        {"id": "FILE-003", "name": "No private keys", "severity": "critical", "points": 5, "tier": "free"},
+        {"id": "FILE-004", "name": "Workspace permissions", "severity": "high", "points": 5, "tier": "free"}
+      ]
+    },
+    {
+      "name": "Skill Security",
+      "maxPoints": 20,
+      "checks": [
+        {"id": "SKILL-001", "name": "Skills from known sources", "severity": "medium", "points": 5, "tier": "free"},
+        {"id": "SKILL-002", "name": "No exec override to full", "severity": "high", "points": 5, "tier": "free"},
+        {"id": "SKILL-003", "name": "No unjustified elevated perms", "severity": "high", "points": 5, "tier": "free"},
+        {"id": "SKILL-004", "name": "Skills dir not world-writable", "severity": "high", "points": 5, "tier": "free"}
+      ]
+    },
+    {
+      "name": "Network Security",
+      "maxPoints": 15,
+      "checks": [
+        {"id": "NET-001", "name": "Gateway not publicly exposed", "severity": "critical", "points": 5, "tier": "free"},
+        {"id": "NET-002", "name": "Webhooks use HTTPS", "severity": "high", "points": 5, "tier": "free"},
+        {"id": "NET-003", "name": "Browser cookies secured", "severity": "high", "points": 5, "tier": "free"}
+      ]
+    },
+    {
+      "name": "OpenClaw Security",
+      "maxPoints": 35,
+      "checks": [
+        {"id": "OC-001", "name": "Config not world-readable", "severity": "high", "points": 5, "tier": "free"},
+        {"id": "OC-002", "name": "Auth token strength", "severity": "critical", "points": 5, "tier": "free"},
+        {"id": "OC-003", "name": "Cron job security", "severity": "high", "points": 5, "tier": "free"},
+        {"id": "OC-004", "name": "Memory files protected", "severity": "high", "points": 5, "tier": "free"},
+        {"id": "OC-005", "name": "Version up-to-date", "severity": "medium", "points": 5, "tier": "free"},
+        {"id": "OC-006", "name": "Workspace isolation", "severity": "high", "points": 5, "tier": "free"},
+        {"id": "OC-007", "name": "Session key entropy", "severity": "high", "points": 5, "tier": "pro"},
+        {"id": "OC-008", "name": "Agent elevated access audit", "severity": "high", "points": 5, "tier": "pro"},
+        {"id": "OC-009", "name": "Skill provenance verification", "severity": "medium", "points": 5, "tier": "pro"},
+        {"id": "OC-010", "name": "Token rotation age", "severity": "medium", "points": 5, "tier": "pro"},
+        {"id": "OC-011", "name": "Browser stored credentials", "severity": "high", "points": 5, "tier": "pro"},
+        {"id": "OC-012", "name": "Command injection vectors", "severity": "critical", "points": 5, "tier": "pro"},
+        {"id": "OC-013", "name": "Webhook replay protection", "severity": "medium", "points": 5, "tier": "pro"}
+      ]
+    }
+  ]
+}
