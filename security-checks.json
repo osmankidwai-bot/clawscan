@@ -1,0 +1,520 @@
+{
+  "version": "2.0.0",
+  "updated": "2026-02-24T08:40:00Z",
+  "description": "Enhanced ClawScan security rules based on competitive analysis",
+  "categories": {
+    "skill_security": "OpenClaw skill-specific security checks",
+    "prompt_injection": "AI prompt injection and manipulation detection",
+    "network_security": "Network communication and C&C detection",
+    "data_exfiltration": "Credential theft and data exfiltration patterns",
+    "system_tampering": "System persistence and tampering mechanisms",
+    "obfuscation": "Code obfuscation and encrypted payload detection",
+    "threat_intel": "Known threat indicators and malicious patterns"
+  },
+  "checks": [
+    {
+      "id": "SKILL-001",
+      "name": "Prompt Injection - Role Hijacking",
+      "category": "prompt_injection",
+      "tier": "free",
+      "severity": "critical",
+      "description": "Detects attempts to override agent identity or bypass system instructions",
+      "patterns": [
+        "you are now",
+        "ignore previous",
+        "system override",
+        "unrestricted mode",
+        "disable safety",
+        "remove limitations",
+        "act as.*without restrictions",
+        "override.*instructions"
+      ],
+      "command": "grep -iE '(you are now|ignore previous|system override|unrestricted mode|disable safety|remove limitations)' {file}",
+      "remediation": "Remove role manipulation instructions from skill content",
+      "references": ["https://owasp.org/www-project-top-10-for-llm/"],
+      "added": "2.0.0"
+    },
+    {
+      "id": "SKILL-002", 
+      "name": "Invisible Unicode Steganography",
+      "category": "prompt_injection",
+      "tier": "free",
+      "severity": "critical",
+      "description": "Detects hidden instructions using invisible Unicode characters",
+      "patterns": [
+        "\\u200B",
+        "\\u200C", 
+        "\\u200D",
+        "\\uFEFF"
+      ],
+      "command": "grep -P '[\\u200B\\u200C\\u200D\\uFEFF]' {file}",
+      "remediation": "Remove invisible Unicode characters that may hide malicious instructions",
+      "added": "2.0.0"
+    },
+    {
+      "id": "SKILL-003",
+      "name": "Data Exfiltration Prompts", 
+      "category": "prompt_injection",
+      "tier": "free",
+      "severity": "high",
+      "description": "Detects prompts designed to exfiltrate sensitive data",
+      "patterns": [
+        "send.*contents",
+        "upload.*file",
+        "extract.*data", 
+        "leak.*information",
+        "copy.*to.*external",
+        "transmit.*secrets"
+      ],
+      "command": "grep -iE '(send.*contents|upload.*file|extract.*data|leak.*information)' {file}",
+      "remediation": "Remove data exfiltration instructions from skill prompts",
+      "added": "2.0.0"
+    },
+    {
+      "id": "SKILL-004",
+      "name": "Authority Spoofing",
+      "category": "prompt_injection", 
+      "tier": "free",
+      "severity": "high",
+      "description": "Detects attempts to impersonate system administrators or authorities",
+      "patterns": [
+        "administrator",
+        "root user",
+        "system admin",
+        "override security",
+        "elevated privileges",
+        "sudo permissions"
+      ],
+      "command": "grep -iE '(administrator|root user|system admin|override security)' {file}",
+      "remediation": "Remove authority impersonation attempts from skill content",
+      "added": "2.0.0"
+    },
+    {
+      "id": "SKILL-005",
+      "name": "Fake Prerequisites",
+      "category": "skill_security",
+      "tier": "free", 
+      "severity": "critical",
+      "description": "Detects suspicious download/install instructions in skill documentation",
+      "patterns": [
+        "curl.*\\|.*sh",
+        "wget.*\\|.*bash",
+        "download.*install.*from",
+        "get.*binary.*github",
+        "install.*external.*tool"
+      ],
+      "command": "grep -iE '(curl.*\\|.*sh|wget.*\\|.*bash|download.*install.*from)' {file}",
+      "remediation": "Verify all external dependencies and use trusted package managers",
+      "added": "2.0.0"
+    },
+    {
+      "id": "NET-001",
+      "name": "Reverse Shell Patterns",
+      "category": "network_security",
+      "tier": "free",
+      "severity": "critical", 
+      "description": "Detects common reverse shell implementations",
+      "patterns": [
+        "nc.*-e",
+        "/bin/sh.*&",
+        "bash.*tcp",
+        "python.*socket.*connect",
+        "perl.*socket",
+        "ruby.*socket",
+        "socat.*tcp"
+      ],
+      "command": "grep -iE '(nc.*-e|/bin/sh.*&|bash.*tcp|python.*socket.*connect)' {file}",
+      "remediation": "Remove reverse shell code - legitimate remote access should use secure protocols",
+      "added": "2.0.0"
+    },
+    {
+      "id": "NET-002",
+      "name": "C&C Communication Channels",
+      "category": "network_security",
+      "tier": "pro",
+      "severity": "critical",
+      "description": "Detects command and control communication mechanisms",
+      "patterns": [
+        "ngrok",
+        "localtunnel", 
+        "serveo",
+        "localhost.run",
+        "tcp.ngrok.io",
+        "webhook.*discord",
+        "webhook.*telegram"
+      ],
+      "command": "grep -iE '(ngrok|localtunnel|serveo|localhost.run|webhook.*(discord|telegram))' {file}",
+      "remediation": "Remove unauthorized tunneling and C&C communication channels",
+      "added": "2.0.0"
+    },
+    {
+      "id": "NET-003", 
+      "name": "Hardcoded IP Addresses",
+      "category": "network_security",
+      "tier": "free",
+      "severity": "medium",
+      "description": "Detects hardcoded IP addresses (excluding localhost)",
+      "patterns": [
+        "([0-9]{1,3}\\.){3}[0-9]{1,3}"
+      ],
+      "command": "grep -oE '([0-9]{1,3}\\.){3}[0-9]{1,3}' {file} | grep -v '127.0.0.1\\|0.0.0.0'",
+      "remediation": "Use domain names instead of hardcoded IP addresses",
+      "added": "2.0.0"
+    },
+    {
+      "id": "NET-004",
+      "name": "Suspicious TLD Usage",
+      "category": "network_security", 
+      "tier": "free",
+      "severity": "high",
+      "description": "Detects usage of suspicious top-level domains",
+      "patterns": [
+        "\\.tk",
+        "\\.ml", 
+        "\\.ga",
+        "\\.cf",
+        "\\.onion",
+        "\\.bit"
+      ],
+      "command": "grep -iE '\\.(tk|ml|ga|cf|onion|bit)' {file}",
+      "remediation": "Avoid suspicious TLDs known for malicious activity",
+      "added": "2.0.0"
+    },
+    {
+      "id": "DATA-001",
+      "name": "SSH Key Theft",
+      "category": "data_exfiltration",
+      "tier": "free",
+      "severity": "critical",
+      "description": "Detects attempts to access SSH private keys",
+      "patterns": [
+        "\\.ssh/id_rsa",
+        "\\.ssh/id_dsa", 
+        "\\.ssh/id_ecdsa",
+        "\\.ssh/id_ed25519",
+        "\\.ssh/identity",
+        "ssh.*private.*key"
+      ],
+      "command": "grep -iE '(\\.ssh/id_rsa|\\.ssh/identity|ssh.*private.*key)' {file}",
+      "remediation": "Remove SSH key access patterns - legitimate tools should not access private keys",
+      "added": "2.0.0"
+    },
+    {
+      "id": "DATA-002",
+      "name": "AWS Credential Theft",
+      "category": "data_exfiltration",
+      "tier": "free", 
+      "severity": "critical",
+      "description": "Detects attempts to access AWS credentials",
+      "patterns": [
+        "\\.aws/credentials",
+        "\\.aws/config",
+        "AWS_ACCESS_KEY",
+        "AWS_SECRET_ACCESS_KEY",
+        "aws.*configure.*get"
+      ],
+      "command": "grep -iE '(\\.aws/credentials|AWS_ACCESS_KEY|aws.*configure.*get)' {file}",
+      "remediation": "Remove AWS credential access patterns",
+      "added": "2.0.0"
+    },
+    {
+      "id": "DATA-003",
+      "name": "Browser Data Harvesting",
+      "category": "data_exfiltration",
+      "tier": "pro",
+      "severity": "high",
+      "description": "Detects attempts to harvest browser data",
+      "patterns": [
+        "cookies",
+        "localStorage", 
+        "sessionStorage",
+        "chrome.*data",
+        "firefox.*profile",
+        "safari.*cookies"
+      ],
+      "command": "grep -iE '(localStorage|sessionStorage|chrome.*data|firefox.*profile)' {file}",
+      "remediation": "Remove browser data harvesting code",
+      "added": "2.0.0"
+    },
+    {
+      "id": "DATA-004",
+      "name": "macOS Keychain Access",
+      "category": "data_exfiltration",
+      "tier": "pro",
+      "severity": "critical",
+      "description": "Detects attempts to access macOS Keychain",
+      "patterns": [
+        "security.*find-generic-password",
+        "security.*find-internet-password", 
+        "keychain.*dump",
+        "security.*export",
+        "/Library/Keychains"
+      ],
+      "command": "grep -iE '(security.*find.*password|keychain.*dump|security.*export)' {file}",
+      "remediation": "Remove macOS Keychain access patterns",
+      "added": "2.0.0"
+    },
+    {
+      "id": "SYS-001",
+      "name": "Filesystem Wiper",
+      "category": "system_tampering",
+      "tier": "free",
+      "severity": "critical", 
+      "description": "Detects destructive filesystem operations",
+      "patterns": [
+        "rm.*-rf.*/" ,
+        "rm.*-rf.*\\*",
+        "del.*\\/s",
+        "format.*c:",
+        "mkfs.*force"
+      ],
+      "command": "grep -E '(rm.*-rf.*/|rm.*-rf.*\\*|del.*/s)' {file}",
+      "remediation": "Remove destructive filesystem operations",
+      "added": "2.0.0"
+    },
+    {
+      "id": "SYS-002",
+      "name": "Crontab Persistence",
+      "category": "system_tampering", 
+      "tier": "free",
+      "severity": "high",
+      "description": "Detects crontab manipulation for persistence",
+      "patterns": [
+        "crontab.*-e",
+        "crontab.*<",
+        "*/etc/cron",
+        "crontab.*-l.*>",
+        "echo.*>>.*cron"
+      ],
+      "command": "grep -iE '(crontab.*-e|crontab.*<|*/etc/cron)' {file}",
+      "remediation": "Review crontab modifications for unauthorized persistence",
+      "added": "2.0.0"
+    },
+    {
+      "id": "SYS-003",
+      "name": "LaunchDaemon Persistence (macOS)",
+      "category": "system_tampering",
+      "tier": "pro",
+      "severity": "high",
+      "description": "Detects macOS persistence mechanisms",
+      "patterns": [
+        "launchctl.*load",
+        "LaunchDaemons",
+        "LaunchAgents", 
+        "/Library/LaunchDaemons",
+        "plist.*load"
+      ],
+      "command": "grep -iE '(launchctl.*load|LaunchDaemons|LaunchAgents)' {file}",
+      "remediation": "Review LaunchDaemon/Agent installations",
+      "added": "2.0.0"
+    },
+    {
+      "id": "SYS-004",
+      "name": "Systemd Service Persistence",
+      "category": "system_tampering",
+      "tier": "pro", 
+      "severity": "high",
+      "description": "Detects Linux systemd persistence mechanisms",
+      "patterns": [
+        "systemctl.*enable",
+        "systemd.*service",
+        "/etc/systemd",
+        "systemctl.*start.*enable"
+      ],
+      "command": "grep -iE '(systemctl.*enable|systemd.*service|/etc/systemd)' {file}",
+      "remediation": "Review systemd service installations",
+      "added": "2.0.0"
+    },
+    {
+      "id": "OBF-001",
+      "name": "Base64 Obfuscated Execution",
+      "category": "obfuscation",
+      "tier": "free",
+      "severity": "high",
+      "description": "Detects base64 encoded code execution",
+      "patterns": [
+        "base64.*exec",
+        "base64.*eval", 
+        "decode.*system",
+        "b64.*execute",
+        "echo.*\\|.*base64.*-d.*\\|.*sh"
+      ],
+      "command": "grep -iE '(base64.*(exec|eval)|decode.*system|echo.*\\|.*base64.*-d.*\\|.*sh)' {file}",
+      "remediation": "Review base64 encoded content for malicious payloads",
+      "added": "2.0.0"
+    },
+    {
+      "id": "OBF-002",
+      "name": "Hex Encoding Obfuscation",
+      "category": "obfuscation",
+      "tier": "pro",
+      "severity": "medium",
+      "description": "Detects hexadecimal encoding obfuscation",
+      "patterns": [
+        "\\\\x[0-9a-f][0-9a-f]",
+        "hex.*decode",
+        "unhexlify",
+        "fromhex",
+        "binascii.*unhexlify"
+      ],
+      "command": "grep -iE '(\\\\x[0-9a-f][0-9a-f]|hex.*decode|unhexlify)' {file}",
+      "remediation": "Review hex encoded content",
+      "added": "2.0.0"
+    },
+    {
+      "id": "OBF-003", 
+      "name": "Compressed Payload Execution",
+      "category": "obfuscation",
+      "tier": "pro",
+      "severity": "high",
+      "description": "Detects compressed/encrypted payload execution",
+      "patterns": [
+        "gzip.*exec",
+        "zlib.*eval",
+        "decompress.*system",
+        "gunzip.*\\|.*sh",
+        "inflate.*execute"
+      ],
+      "command": "grep -iE '(gzip.*exec|zlib.*eval|decompress.*system|gunzip.*\\|.*sh)' {file}",
+      "remediation": "Review compressed payloads for malicious content",
+      "added": "2.0.0"
+    },
+    {
+      "id": "INTEL-001",
+      "name": "Known Malicious Hash",
+      "category": "threat_intel",
+      "tier": "pro",
+      "severity": "critical",
+      "description": "File matches known malicious hash signature",
+      "command": "echo '{file_hash}' | grep -f ~/.clawscan/malicious-hashes.txt",
+      "remediation": "File identified as malicious by threat intelligence - do not execute",
+      "added": "2.0.0"
+    },
+    {
+      "id": "INTEL-002",
+      "name": "Blocklisted IP/Domain",
+      "category": "threat_intel", 
+      "tier": "pro",
+      "severity": "high",
+      "description": "Communication with known malicious infrastructure",
+      "command": "grep -oE '([0-9]{1,3}\\.){3}[0-9]{1,3}|[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}' {file} | grep -f ~/.clawscan/malicious-indicators.txt",
+      "remediation": "Remove communication with blocklisted infrastructure",
+      "added": "2.0.0"
+    },
+    {
+      "id": "OPENCLAW-001",
+      "name": "OpenClaw Config Tampering",
+      "category": "skill_security",
+      "tier": "free",
+      "severity": "high",
+      "description": "Detects attempts to modify OpenClaw configuration",
+      "patterns": [
+        "\\.openclaw/",
+        "openclaw.*config",
+        "gateway.*json",
+        "config.*patch", 
+        "config.*apply"
+      ],
+      "command": "grep -iE '(\\.openclaw/|openclaw.*config|gateway.*json|config.*(patch|apply))' {file}",
+      "remediation": "Review OpenClaw configuration modifications",
+      "added": "2.0.0"
+    },
+    {
+      "id": "OPENCLAW-002",
+      "name": "Memory File Access", 
+      "category": "skill_security",
+      "tier": "free",
+      "severity": "medium",
+      "description": "Detects access to OpenClaw memory files",
+      "patterns": [
+        "MEMORY\\.md",
+        "SOUL\\.md",
+        "USER\\.md",
+        "memory/.*\\.md",
+        "workspace.*memory"
+      ],
+      "command": "grep -iE '(MEMORY\\.md|SOUL\\.md|USER\\.md|memory/.*\\.md)' {file}",
+      "remediation": "Review access to sensitive memory files",
+      "added": "2.0.0"
+    },
+    {
+      "id": "OPENCLAW-003",
+      "name": "Skill Installation Manipulation",
+      "category": "skill_security",
+      "tier": "pro",
+      "severity": "medium",
+      "description": "Detects attempts to manipulate skill installation process",
+      "patterns": [
+        "openclaw.*skill.*install",
+        "clawhub.*install",
+        "skill.*install.*--force",
+        "npm.*install.*-g.*openclaw"
+      ],
+      "command": "grep -iE '(openclaw.*skill.*install|clawhub.*install|skill.*install.*--force)' {file}",
+      "remediation": "Review skill installation modifications",
+      "added": "2.0.0"
+    },
+    {
+      "id": "TYPO-001",
+      "name": "Typosquatting Detection",
+      "category": "skill_security",
+      "tier": "pro", 
+      "severity": "medium",
+      "description": "Detects potential typosquatting of popular skills",
+      "command": "python3 ~/.clawscan/scripts/typosquat-check.py {skill_name}",
+      "remediation": "Verify skill name against official skill registry",
+      "added": "2.0.0"
+    }
+  ],
+  "remediation_playbooks": {
+    "prompt_injection": {
+      "description": "Steps to remediate prompt injection vulnerabilities",
+      "steps": [
+        "Identify and remove malicious prompt patterns",
+        "Sanitize input validation",
+        "Implement prompt filtering",
+        "Test with known injection payloads"
+      ]
+    },
+    "reverse_shell": {
+      "description": "Steps to remediate reverse shell vulnerabilities", 
+      "steps": [
+        "Remove network listening code",
+        "Implement proper process isolation",
+        "Use secure communication protocols",
+        "Monitor network connections"
+      ]
+    },
+    "credential_theft": {
+      "description": "Steps to remediate credential theft vulnerabilities",
+      "steps": [
+        "Remove credential access code",
+        "Implement proper secret management",
+        "Use environment variables",
+        "Audit file permissions"
+      ]
+    }
+  },
+  "severity_scoring": {
+    "critical": {
+      "score": 25,
+      "description": "Immediate security risk - exploitation can lead to system compromise"
+    },
+    "high": {
+      "score": 15, 
+      "description": "Significant security risk - should be addressed immediately"
+    },
+    "medium": {
+      "score": 10,
+      "description": "Moderate security risk - should be addressed soon"
+    },
+    "low": {
+      "score": 5,
+      "description": "Minor security concern - address when convenient"
+    },
+    "info": {
+      "score": 0,
+      "description": "Informational finding - no immediate action required"
+    }
+  }
+}
