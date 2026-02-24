@@ -50,6 +50,24 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Expert Validation ── */}
+      <section className="px-6 py-16 max-w-4xl mx-auto">
+        <div className="border border-accent/30 rounded-xl p-8 bg-accent/[0.03] glow-box text-center">
+          <div className="text-accent text-sm font-mono uppercase tracking-wider mb-4">
+            VALIDATED BY AI EXPERTS
+          </div>
+          <blockquote className="text-xl md:text-2xl font-bold text-white mb-4 italic leading-relaxed">
+            &ldquo;AI agent networks [are becoming a] computer security nightmare at scale&rdquo;
+          </blockquote>
+          <cite className="text-gray-400 text-sm">
+            — Andrej Karpathy, OpenAI Co-founder, Former Tesla AI Director
+          </cite>
+          <div className="mt-6 text-accent font-semibold">
+            ClawScan was built to prevent exactly this nightmare.
+          </div>
+        </div>
+      </section>
+
       {/* ── The Problem ── */}
       <section className="px-6 py-20 max-w-3xl mx-auto">
         <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-12">
